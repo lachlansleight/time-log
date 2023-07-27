@@ -12,6 +12,7 @@ const CalendarDayColumn = ({
     loading,
     handleActivityChange,
     handleActivityCreate,
+    handleActivityOpen,
 }: {
     day: string;
     data: ClientDay[];
@@ -20,6 +21,7 @@ const CalendarDayColumn = ({
     loading: string[];
     handleActivityChange: (newVal: ClientActivity) => void;
     handleActivityCreate: (newVal: ClientActivity) => void;
+    handleActivityOpen: (activity: ClientActivity) => void;
 }): JSX.Element => {
     const columnDiv = useRef<HTMLDivElement>(null);
     const dragImg = useRef<HTMLImageElement>(null);
@@ -60,6 +62,7 @@ const CalendarDayColumn = ({
                             getY={getY}
                             getHour={getHour}
                             onChange={handleActivityChange}
+                            onMiddleClick={() => handleActivityOpen(activity)}
                             loading={loading.includes(activity.id)}
                         />
                     );

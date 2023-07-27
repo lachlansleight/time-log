@@ -1,13 +1,16 @@
 import { AppProps } from "next/dist/shared/lib/router/router";
 import { ReactNode } from "react";
 import "../styles/app.css";
-import { DataContextProvider } from "lib/useData";
+import NiceModal from "@ebay/nice-modal-react";
+import { DataContextProvider } from "lib/hooks/useData";
 
 function MyApp({ Component, pageProps }: AppProps): ReactNode {
     return (
         <>
             <DataContextProvider>
-                <Component {...pageProps} />
+                <NiceModal.Provider>
+                    <Component {...pageProps} />
+                </NiceModal.Provider>
             </DataContextProvider>
         </>
     );

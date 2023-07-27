@@ -14,4 +14,11 @@ module.exports = {
         extend: {},
     },
     plugins: [],
+    safelist: [
+        { pattern: /bg-[a-z]+-[0-9]+/ },
+        { pattern: /text-[a-z]+-[0-9]+/ },
+        { pattern: /text-[a-z]+/ },
+        { pattern: /font-[a-z]+/ },
+        "italic",
+    ]
 };

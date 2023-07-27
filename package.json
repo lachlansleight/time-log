@@ -12,8 +12,10 @@
         "combo": "npm run format && npm run lint && npm run type-check"
     },
     "dependencies": {
+        "@ebay/nice-modal-react": "^1.2.10",
         "axios": "latest",
         "dayjs": "latest",
+        "match-sorter": "^6.3.1",
         "next": "latest",
         "react": "latest",
         "react-dom": "latest",

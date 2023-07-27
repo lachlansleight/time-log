@@ -6,12 +6,14 @@ const CalendarActivity = ({
     getY,
     getHour,
     onChange,
+    onMiddleClick,
     loading,
 }: {
     activity: ClientActivity;
     getY: (time: number) => number;
     getHour: (time: number) => number;
     onChange: (newVal: ClientActivity) => void;
+    onMiddleClick: () => void;
     loading: boolean;
 }): JSX.Element => {
     const dragSize = 20;
@@ -49,7 +51,7 @@ const CalendarActivity = ({
     return (
         <div
             ref={dayDiv}
-            className={`absolute grid place-items-center rounded-lg ${
+            className={`absolute grid place-items-center rounded-lg border border-neutral-800 ${
                 loading ? "cursor-wait" : cursor
             } ${innerActivity.type.category.class}`}
             draggable
@@ -109,10 +111,13 @@ const CalendarActivity = ({
             }}
             onMouseDown={e => {
                 if (loading) return;
-                if (e.button === 1) console.log("middle");
+                if (e.button === 1) onMiddleClick();
             }}
         >
-            <span>{activity.type.name}</span>
+            <div className="flex flex-col items-center">
+                <span>{activity.type.name}</span>
+                {activity.note && <span className="text-xs">{activity.note}</span>}
+            </div>
             <img className="absolute w-0 h-0" ref={dragImg} />
         </div>
     );

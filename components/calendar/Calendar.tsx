@@ -4,13 +4,15 @@ import advancedFormat from "dayjs/plugin/advancedFormat";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
+import { useModal } from "@ebay/nice-modal-react";
 import weeklogFormat from "lib/plugins/weeklogFormat";
-import useData from "lib/useData";
+import useData from "lib/hooks/useData";
 import { ClientSiteData } from "lib/types/SiteData";
 import Day from "lib/types/Day";
 import { ClientActivity } from "lib/types/Activity";
 import ActivityType from "lib/types/ActivityType";
 import Category from "lib/types/Category";
+import ActivityModal from "components/modals/ActivityModal";
 import CalendarHeader from "./CalendarHeader";
 import CalendarRows from "./CalendarRows";
 import CalendarDayColumn from "./CalendarDayColumn";
@@ -21,6 +23,14 @@ dayjs.extend(weeklogFormat);
 
 const Calendar = ({ height = 1000 }: { height?: number }): JSX.Element => {
     const data = useData();
+
+    const activityModal = useModal(ActivityModal);
+    const openActivityModal = useCallback(
+        (activity?: ClientActivity) => {
+            activityModal.show({ activity, onChange: handleActivityChange });
+        },
+        [activityModal]
+    );
 
     const [week, setWeek] = useState(dayjs().startOf("isoWeek").add(12, "hour"));
     const offsetWeek = useCallback(
@@ -70,8 +80,17 @@ const Calendar = ({ height = 1000 }: { height?: number }): JSX.Element => {
                     console.log(dbData);
                     requests.push(axios.put(`${dbUrl}/days/${day.date}.json`, dbData));
 
-                    if (!localData.activityTypes.find(at => at.id === activity.type.id)) {
-                        if (!localData.categories.find(c => c.id === activity.type.category.id)) {
+                    const existingActivityType = localData.activityTypes.find(at => at.id === activity.type.id);
+                    if (!existingActivityType) {
+                        const existingCategory = localData.categories.find(c => c.id === activity.type.category.id);
+                        if (!existingCategory) {
+                            requests.push(
+                                axios.put(
+                                    `${dbUrl}/categories/${activity.type.category.id}.json`,
+                                    Category.clientToDb(activity.type.category)
+                                )
+                            );
+                        } else if(JSON.stringify(existingCategory) !== JSON.stringify(activity.type.category)) {
                             requests.push(
                                 axios.put(
                                     `${dbUrl}/categories/${activity.type.category.id}.json`,
@@ -80,6 +99,13 @@ const Calendar = ({ height = 1000 }: { height?: number }): JSX.Element => {
                             );
                         }
 
+                        requests.push(
+                            axios.put(
+                                `${dbUrl}/activityTypes/${activity.type.id}.json`,
+                                ActivityType.clientToDb(activity.type)
+                            )
+                        );
+                    } else if(JSON.stringify(existingActivityType) !== JSON.stringify(activity.type)) {
                         requests.push(
                             axios.put(
                                 `${dbUrl}/activityTypes/${activity.type.id}.json`,
@@ -193,6 +219,7 @@ const Calendar = ({ height = 1000 }: { height?: number }): JSX.Element => {
                             loading={loading}
                             handleActivityChange={handleActivityChange}
                             handleActivityCreate={v => handleActivityCreate(day, v)}
+                            handleActivityOpen={openActivityModal}
                         />
                     ))}
                 </div>

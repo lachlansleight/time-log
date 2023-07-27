@@ -1,6 +1,6 @@
 import Calendar from "components/calendar/Calendar";
 import Layout from "components/layout/Layout";
-import useDimensions from "lib/useDimensions";
+import useDimensions from "lib/hooks/useDimensions";
 
 const HomePage = (): JSX.Element => {
     const dimensions = useDimensions();

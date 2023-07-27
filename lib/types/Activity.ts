@@ -5,6 +5,7 @@ export interface DbActivity {
     t: string;
     s: number;
     d: number;
+    n?: string;
 }
 
 export interface ClientActivity {
@@ -12,6 +13,7 @@ export interface ClientActivity {
     type: ClientActivityType;
     start: number;
     duration: number;
+    note?: string;
 }
 
 class Activity {
@@ -21,6 +23,7 @@ class Activity {
             t: client.type.id,
             s: client.start,
             d: client.duration,
+            n: client.note || undefined,
         };
     }
 
@@ -40,6 +43,7 @@ class Activity {
             },
             start: db.s,
             duration: db.d,
+            note: db.n || undefined,
         };
     }
 }
