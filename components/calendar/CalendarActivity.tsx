@@ -71,6 +71,7 @@ const CalendarActivity = ({
                 else setCursor("cursor-grab");
             }}
             onDragStart={e => {
+                e.stopPropagation();
                 if (dragImg.current) e.dataTransfer.setDragImage(dragImg.current, 0, 0);
                 if (loading) return;
                 const coords = getLocalCoords(e);
@@ -81,6 +82,7 @@ const CalendarActivity = ({
                 setDragStart(y);
             }}
             onDrag={e => {
+                e.stopPropagation();
                 if (!dragging) return;
 
                 const coords = getLocalCoords(e);
@@ -106,7 +108,8 @@ const CalendarActivity = ({
                     setInnerActivity({ ...activity, start: newStart });
                 }
             }}
-            onDragEnd={() => {
+            onDragEnd={e => {
+                e.stopPropagation();
                 onChange(innerActivity);
                 setDragging("");
                 setDragStartRect(dayDiv.current?.getBoundingClientRect() || null);

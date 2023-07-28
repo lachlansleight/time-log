@@ -23,7 +23,7 @@ const CalendarRows = (): JSX.Element => {
                             key={i}
                             className="absolute grid place-items-center w-8"
                             style={{
-                                top: `calc(${(i * 100) / 25}% - 0.5rem)`,
+                                top: `calc(${(i * 100) / 25}% - 1.125rem)`,
                                 height: `calc(100% / 24)`,
                             }}
                         >

@@ -117,8 +117,6 @@ const AutocompleteField = ({
             return;
         }
 
-        console.log({ selectedKey, option, autocompleteOptions, options });
-
         setInputValue(option.label);
         if (onChange) onChange(option.key);
         //setInputValue(options[selectedIndex].label);

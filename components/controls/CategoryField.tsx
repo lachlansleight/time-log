@@ -9,19 +9,23 @@ const CategoryField = ({
     value,
     onChange,
     categories,
+    editSource,
 }: {
     label?: string;
     className?: string;
     value: ClientCategory;
     onChange: (newVal: ClientCategory) => void;
     categories: ClientCategory[];
+    editSource?: ClientCategory;
 }): JSX.Element => {
-    const [isCreatingNew, setIsCreatingNew] = useState(false);
-    const [customValue, setCustomValue] = useState<ClientCategory>({
-        ...Category.getDefault(),
-        id: new Date().valueOf().toString(),
-        name: "New Category",
-    });
+    const [isCreatingNew, setIsCreatingNew] = useState(!!editSource);
+    const [customValue, setCustomValue] = useState<ClientCategory>(
+        editSource || {
+            ...Category.getDefault(),
+            id: new Date().valueOf().toString(),
+            name: "New Category",
+        }
+    );
     useEffect(() => {
         if (!isCreatingNew) return;
         onChange(customValue);

@@ -8,9 +8,11 @@ const ActivityModal = create(
     ({
         activity,
         onChange,
+        onDelete,
     }: {
         activity?: ClientActivity;
         onChange: (activity: ClientActivity) => void;
+        onDelete: (activity: ClientActivity) => void;
     }) => {
         const modal = useModal();
 
@@ -29,6 +31,10 @@ const ActivityModal = create(
                         activity={activity}
                         onSubmit={v => {
                             onChange(v);
+                            modal.remove();
+                        }}
+                        onDelete={v => {
+                            onDelete(v);
                             modal.remove();
                         }}
                         loading={false}

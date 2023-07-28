@@ -40,7 +40,11 @@ const CalendarGrid = ({
     const activityModal = useModal(ActivityModal);
     const openActivityModal = useCallback(
         (d: string, activity?: ClientActivity) => {
-            activityModal.show({ activity, onChange: a => handleActivityChange(d, a) });
+            activityModal.show({
+                activity,
+                onChange: a => handleActivityChange(d, a),
+                onDelete: a => handleActivityDelete(d, a),
+            });
         },
         [activityModal]
     );
@@ -84,6 +88,13 @@ const CalendarGrid = ({
             .then(() => setLoading(cur => cur.filter(d => d !== activity.id)));
     };
 
+    const handleActivityDelete = (date: string, activity: ClientActivity) => {
+        setLoading(cur => [...cur, activity.id, date]);
+        database
+            ?.deleteActivity(date, activity)
+            .then(() => setLoading(cur => cur.filter(d => d !== activity.id && d !== date)));
+    };
+
     const handleActivityCreate = (date: string, activity: ClientActivity) => {
         setLoading(cur => [...cur, date]);
         database
@@ -93,7 +104,13 @@ const CalendarGrid = ({
     };
 
     return (
-        <div className="flex flex-col h-full">
+        <div
+            className="flex flex-col h-full"
+            onDragOver={e => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+            }}
+        >
             <CalendarHeader week={week} days={days} offsetWeek={offsetWeek} />
             <div className="flex w-full relative" style={{ height }}>
                 <CalendarRows />

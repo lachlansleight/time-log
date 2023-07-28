@@ -26,14 +26,12 @@ const ActivityTypeField = ({
             label={label}
             value={types.find(t => t.id === value.id)?.id || -1}
             onChange={newVal => {
-                console.log(newVal);
                 if (newVal === -1) return;
                 const newType = types.find(t => t.id === newVal);
                 if (!newType) return;
                 onChange(newType);
             }}
             onCustomChange={customVal => {
-                console.log(customVal);
                 onChange({
                     ...ActivityType.getDefault(),
                     id: new Date().valueOf().toString(),

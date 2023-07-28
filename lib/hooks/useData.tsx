@@ -40,7 +40,6 @@ const DataContextProvider = ({
         if (!calendar) return;
 
         setLoading(true);
-        console.log("Loading data");
         const rawData: DbSiteData = (
             await axios(process.env.NEXT_PUBLIC_FIREBASE_DATABASE + "/.json")
         ).data;

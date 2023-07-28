@@ -201,6 +201,39 @@ class Calendar {
             }
         }
     }
+
+    public async deleteActivity(date: string, activity: ClientActivity): Promise<void> {
+        const cache = JSON.stringify(this.data);
+
+        const day = this.data.days.find(d => d.date === date);
+        if (!day) {
+            if (this.onError) this.onError("Failed to delete activity - day not found");
+            return;
+        }
+
+        const index = day.activities.findIndex(a => a.id === activity.id);
+        if (index === -1) {
+            if (this.onError) this.onError("Failed to delete activity - activity not found");
+            return;
+        }
+
+        day.activities = day.activities.filter(d => d.id !== activity.id);
+        if (this.onDataUpdated) this.onDataUpdated(this.data);
+        try {
+            if(day.activities.length === 0) {
+                await axios.delete(`${this.dbUrl}/days/${date}.json`);
+            } else {
+                await axios.delete(`${this.dbUrl}/days/${date}/a/${activity.id}.json`);
+            }
+            if (this.onInfo) this.onInfo("Activity deleted");
+        } catch (e: any) {
+            console.error(e);
+            if (this.onError) this.onError("Failed to delete activity");
+
+            this.data = JSON.parse(cache);
+            if (this.onDataUpdated) this.onDataUpdated(this.data);
+        }
+    }
 }
 
 export default Calendar;
