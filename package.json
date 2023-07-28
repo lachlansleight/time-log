@@ -1,7 +1,7 @@
 {
     "name": "time-log",
     "author": "@LachlanSleight",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "scripts": {
         "dev": "next dev -p 3134",
         "build": "next build",
@@ -19,7 +19,8 @@
         "next": "latest",
         "react": "latest",
         "react-dom": "latest",
-        "react-icons": "latest"
+        "react-icons": "latest",
+        "react-toastify": "^9.1.3"
     },
     "devDependencies": {
         "@types/node": "latest",

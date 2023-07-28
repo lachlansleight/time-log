@@ -1,45 +1,82 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import SiteData, { ClientSiteData, DbSiteData } from "lib/types/SiteData";
+import { toast } from "react-toastify";
+import { ClientSiteData, DbSiteData } from "lib/types/SiteData";
+import Calendar from "lib/Calendar";
 
 export type DataContext = {
     loading: boolean;
     data: ClientSiteData | null;
+    database: Calendar | null;
     revalidate: () => Promise<void>;
 };
 
 const defaultContextValue = {
     loading: false,
     data: null,
+    database: null,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     revalidate: async () => {},
 };
 
 const dataContext = createContext<DataContext>(defaultContextValue);
 
-const DataContextProvider = ({ children }: { children: ReactNode }) => {
+const DataContextProvider = ({
+    showInfo = false,
+    showErrors = true,
+    children,
+}: {
+    showInfo?: boolean;
+    showErrors?: boolean;
+    children: ReactNode;
+}) => {
     const [value, setValue] = useState<DataContext>(defaultContextValue);
-    const revalidate = useCallback(async () => {
-        if (value.loading) return;
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState<ClientSiteData | null>(null);
+    const [calendar] = useState<Calendar>(new Calendar());
 
-        setValue(cur => ({
-            ...cur,
-            loading: true,
-        }));
+    const revalidate = useCallback(async () => {
+        if (loading) return;
+        if (!calendar) return;
+
+        setLoading(true);
         console.log("Loading data");
-        const allData: DbSiteData = (
+        const rawData: DbSiteData = (
             await axios(process.env.NEXT_PUBLIC_FIREBASE_DATABASE + "/.json")
         ).data;
-        setValue(cur => ({
-            ...cur,
-            loading: false,
-            data: SiteData.dbToClient(allData),
-        }));
-    }, [value.loading]);
+        calendar.setFromDb(rawData);
+
+        setLoading(false);
+    }, [calendar, loading]);
 
     useEffect(() => {
+        if (!calendar) return;
+        if (showInfo) calendar.onInfo = toast.info;
+        else calendar.onInfo = null;
+    }, [calendar, showInfo]);
+
+    useEffect(() => {
+        if (!calendar) return;
+        if (showInfo) calendar.onError = toast.error;
+        else calendar.onError = null;
+    }, [calendar, showErrors]);
+
+    useEffect(() => {
+        if (!calendar) return;
+        calendar.onDataUpdated = setData;
         revalidate();
-    }, []);
+    }, [calendar]);
+
+    useEffect(() => {
+        if (!calendar) return;
+
+        setValue(cur => ({
+            ...cur,
+            loading,
+            data,
+            database: calendar,
+        }));
+    }, [data, calendar, loading]);
 
     return <dataContext.Provider value={{ ...value, revalidate }}>{children}</dataContext.Provider>;
 };

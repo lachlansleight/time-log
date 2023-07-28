@@ -31,7 +31,7 @@ const ActivityForm = ({
     );
     const isNewActivityType = useMemo(() => {
         console.log(value.type);
-        if(data?.activityTypes.find(t => t.id === value.type.id)) return false;
+        if (data?.activityTypes.find(t => t.id === value.type.id)) return false;
         return true;
     }, [data, value]);
 
@@ -48,41 +48,34 @@ const ActivityForm = ({
             <ActivityTypeField
                 label="Activity"
                 value={value.type}
-                onChange={v => setValue(cur => ({ 
-                    ...cur, 
-                    type: v
-                }))}
+                onChange={v =>
+                    setValue(cur => ({
+                        ...cur,
+                        type: v,
+                    }))
+                }
                 types={data.activityTypes}
+                autoFocus={true}
+                onEnter={() => onSubmit(value)}
             />
             <TextField
                 label="Note"
                 value={value.note || ""}
                 onChange={v => setValue(cur => ({ ...cur, note: v }))}
             />
-            {isNewActivityType ? (
+            {isNewActivityType && (
                 <CategoryField
                     label="Category"
                     value={value.type.category}
-                    onChange={v => setValue(cur => ({
-                        ...cur,
-                        type: {
-                            ...cur.type,
-                            category: v
-                        }
-                    }))}
-                    categories={data.categories}
-                />
-            ) : (
-                <CategoryField
-                    label="Category"
-                    value={value.type.category}
-                    onChange={v => setValue(cur => ({
-                        ...cur,
-                        type: {
-                            ...cur.type,
-                            category: v
-                        }
-                    }))}
+                    onChange={v =>
+                        setValue(cur => ({
+                            ...cur,
+                            type: {
+                                ...cur.type,
+                                category: v,
+                            },
+                        }))
+                    }
                     categories={data.categories}
                 />
             )}

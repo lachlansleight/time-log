@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 const TextField = ({
     className,
     label,
@@ -6,6 +8,7 @@ const TextField = ({
     onFocus,
     placeholder = "",
     type = "text",
+    autoFocus = false,
 }: {
     className?: string;
     label: string;
@@ -14,7 +17,16 @@ const TextField = ({
     onFocus?: () => void;
     placeholder?: string;
     type?: string;
+    autoFocus?: boolean;
 }): JSX.Element => {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (!autoFocus) return;
+        if (!inputRef.current) return;
+        inputRef.current.focus();
+    }, [autoFocus, inputRef]);
+
     return (
         <div className={`w-full flex flex-col ${className}`}>
             <label className="w-24 text-xs">{label}</label>
@@ -27,6 +39,7 @@ const TextField = ({
                     if (onChange) onChange(e.target.value);
                 }}
                 onFocus={onFocus}
+                ref={inputRef}
             />
         </div>
     );

@@ -3,7 +3,7 @@ import { ClientActivityType } from "./ActivityType";
 
 export interface DbDay {
     d: string;
-    a: DbActivity[];
+    a: Record<string, DbActivity>;
 }
 
 export interface ClientDay {
@@ -13,16 +13,20 @@ export interface ClientDay {
 
 class Day {
     static clientToDb(client: ClientDay): DbDay {
+        const activities: Record<string, DbActivity> = {};
+        client.activities.forEach(
+            activity => (activities[activity.id] = Activity.clientToDb(activity))
+        );
         return {
             d: client.date,
-            a: client.activities.map(activity => Activity.clientToDb(activity)),
+            a: activities,
         };
     }
 
     static dbToClient(db: DbDay, types: ClientActivityType[]): ClientDay {
         return {
             date: db.d,
-            activities: db.a.map(activity => Activity.dbToClient(activity, types)),
+            activities: Object.values(db.a).map(activity => Activity.dbToClient(activity, types)),
         };
     }
 }

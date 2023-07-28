@@ -20,5 +20,5 @@ module.exports = {
         { pattern: /text-[a-z]+/ },
         { pattern: /font-[a-z]+/ },
         "italic",
-    ]
+    ],
 };

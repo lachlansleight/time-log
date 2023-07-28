@@ -19,6 +19,9 @@ const CalendarActivity = ({
     const dragSize = 20;
 
     const [innerActivity, setInnerActivity] = useState(activity);
+    useEffect(() => {
+        setInnerActivity(activity);
+    }, [activity]);
 
     const dayDiv = useRef<HTMLDivElement>(null);
     const dragImg = useRef<HTMLImageElement>(null);

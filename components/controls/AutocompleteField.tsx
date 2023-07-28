@@ -15,16 +15,24 @@ const AutocompleteField = ({
     label,
     value,
     autocompleteOptions,
+    placeholder = "",
     onChange,
     onCustomChange,
+    onClear,
+    onEnter,
+    autoFocus = false,
 }: {
     className?: string;
     dropdownClassName?: string;
     label?: string;
     value: number | string;
     autocompleteOptions: AutocompleteOption[];
+    placeholder?: string;
     onChange?: (newVal: number | string) => void;
     onCustomChange?: (newVal: string) => void;
+    onClear?: () => void;
+    onEnter?: () => void;
+    autoFocus?: boolean;
 }): JSX.Element => {
     const [inputValue, setInputValue] = useState(
         autocompleteOptions.find(o => o.key === value)?.label || ""
@@ -42,19 +50,24 @@ const AutocompleteField = ({
 
     useKeyboard(
         (e: KeyboardEvent) => {
-            if (!isOpen) return;
             if (e.key === "ArrowUp") {
+                if (!isOpen) return;
                 if (highlightedIndex > 0) setHighlightedIndex(cur => cur - 1);
                 e.preventDefault();
             } else if (e.key === "ArrowDown") {
+                if (!isOpen) return;
                 if (highlightedIndex < options.length - 1) setHighlightedIndex(cur => cur + 1);
                 e.preventDefault();
             } else if (e.key === "Enter") {
-                setSelectedKey(
-                    highlightedIndex === -1 ? "" : (options[highlightedIndex].key as string)
-                );
-                setIsOpen(false);
-                e.preventDefault();
+                if (isOpen) {
+                    setSelectedKey(
+                        highlightedIndex === -1 ? "" : (options[highlightedIndex].key as string)
+                    );
+                    setIsOpen(false);
+                } else {
+                    if (onEnter) onEnter();
+                    e.preventDefault();
+                }
             }
         },
         [isOpen, options, highlightedIndex]
@@ -64,6 +77,7 @@ const AutocompleteField = ({
         if (!inputValue) {
             setSelectedKey("");
             if (onChange) onChange(-1);
+            if (onClear) onClear();
             return;
         }
         let set = false;
@@ -147,6 +161,8 @@ const AutocompleteField = ({
                     isOpen && getListItems().length > 0 ? " rounded-b-none border-b-0" : ""
                 }`}
                 onFocus={() => setIsOpen(true)}
+                placeholder={placeholder}
+                autoFocus={autoFocus}
             />
             {isOpen && (
                 <ul
