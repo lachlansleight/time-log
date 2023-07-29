@@ -63,7 +63,7 @@ const ActivityForm = ({
                             }))
                         }
                     />
-                    {value.type.category.id !== "uncategorized" && (
+                    {value.type.id !== "uncategorized" && (
                         <CategoryField
                             label="Category"
                             value={value.type.category}
@@ -77,7 +77,11 @@ const ActivityForm = ({
                                 }))
                             }
                             categories={data.categories}
-                            editSource={value.type.category}
+                            editSource={
+                                value.type.category.id === "uncategorized"
+                                    ? undefined
+                                    : value.type.category
+                            }
                         />
                     )}
                     <div className="flex gap-4">

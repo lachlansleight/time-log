@@ -113,7 +113,7 @@ const CalendarGrid = ({
         >
             <CalendarHeader week={week} days={days} offsetWeek={offsetWeek} />
             <div className="flex w-full relative" style={{ height }}>
-                <CalendarRows />
+                <CalendarRows showLines={true} />
                 <div
                     className={`relative grid grid-cols-7 flex-grow border-l border-white border-opacity-10`}
                     style={{
@@ -135,6 +135,7 @@ const CalendarGrid = ({
                         />
                     ))}
                 </div>
+                <CalendarRows />
             </div>
         </div>
     );

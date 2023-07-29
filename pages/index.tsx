@@ -15,7 +15,7 @@ const HomePage = (): JSX.Element => {
                     <CalendarGrid
                         week={week}
                         onWeekChange={setWeek}
-                        height={dimensions.height - 152}
+                        height={dimensions.height - 152 - 24}
                     />
                 )}
             </div>

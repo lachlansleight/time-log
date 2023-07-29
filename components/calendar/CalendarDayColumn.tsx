@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from "react";
 import { ClientDay } from "lib/types/Day";
 import { ClientActivity } from "lib/types/Activity";
 import ActivityType from "lib/types/ActivityType";
+import TextUtils from "lib/TextUtils";
 import CalendarActivity from "./CalendarActivity";
 
 const CalendarDayColumn = ({
@@ -140,9 +141,15 @@ const CalendarDayColumn = ({
                         left: "0.25rem",
                     }}
                 >
+                    <span className="text-xs text-white text-opacity-50 absolute left-0 w-full -top-5">
+                        {TextUtils.getHourString(newActivity.start)}
+                    </span>
                     <div className="flex flex-col items-center">
                         {newActivity.duration > 0 && <span>{newActivity.type.name}</span>}
                     </div>
+                    <span className="text-xs text-white text-opacity-50 absolute left-0 w-full -bottom-5">
+                        {TextUtils.getHourString(newActivity.start + newActivity.duration)}
+                    </span>
                 </div>
             )}
             <img className="absolute w-0 h-0" ref={dragImg} />

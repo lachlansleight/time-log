@@ -220,7 +220,7 @@ class Calendar {
         day.activities = day.activities.filter(d => d.id !== activity.id);
         if (this.onDataUpdated) this.onDataUpdated(this.data);
         try {
-            if(day.activities.length === 0) {
+            if (day.activities.length === 0) {
                 await axios.delete(`${this.dbUrl}/days/${date}.json`);
             } else {
                 await axios.delete(`${this.dbUrl}/days/${date}/a/${activity.id}.json`);

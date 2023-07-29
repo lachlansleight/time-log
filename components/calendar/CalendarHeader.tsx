@@ -33,7 +33,10 @@ const CalendarHeader = ({
                 {days.map(day => {
                     return (
                         <div key={day} className="grid place-items-center">
-                            {<p>{dayjs(day, "YY-MM-DD").format("Do")}</p>}
+                            <span className="text-center leading-none">
+                                {dayjs(day, "YY-MM-DD").format("dddd")}{" "}
+                                {dayjs(day, "YY-MM-DD").format("Do")}
+                            </span>
                         </div>
                     );
                 })}
