@@ -121,9 +121,9 @@ const CalendarActivity = ({
             }}
         >
             <div className="flex flex-col items-center">
-                <span className="text-center">{activity.type.name}</span>
+                <span className="text-center leading-none">{activity.type.name}</span>
                 {activity.note && activity.duration > 0.5 && (
-                    <span className="text-xs text-center">{activity.note}</span>
+                    <span className="text-xs text-center leading-none mt-1">{activity.note}</span>
                 )}
             </div>
             <img className="absolute w-0 h-0" ref={dragImg} />
