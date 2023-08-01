@@ -8,6 +8,7 @@ import weeklogFormat from "lib/plugins/weeklogFormat";
 import useData from "lib/hooks/useData";
 import { ClientActivity } from "lib/types/Activity";
 import ActivityModal from "components/modals/ActivityModal";
+import useAuth from "lib/auth/useAuth";
 import CalendarHeader from "./CalendarHeader";
 import CalendarRows from "./CalendarRows";
 import CalendarDayColumn from "./CalendarDayColumn";
@@ -26,6 +27,7 @@ const CalendarGrid = ({
     height?: number;
 }): JSX.Element => {
     const { data, database } = useData();
+    const { user } = useAuth();
     // const [calendarData, setCalendarData] = useState<ClientSiteData | null>(null);
     // const [calendar] = useState<Calendar>(new Calendar());
     // useEffect(() => {
@@ -84,21 +86,21 @@ const CalendarGrid = ({
     const handleActivityChange = (date: string, activity: ClientActivity) => {
         setLoading(cur => [...cur, activity.id]);
         database
-            ?.updateActivity(date, activity)
+            ?.updateActivity(date, activity, user?.token)
             .then(() => setLoading(cur => cur.filter(d => d !== activity.id)));
     };
 
     const handleActivityDelete = (date: string, activity: ClientActivity) => {
         setLoading(cur => [...cur, activity.id, date]);
         database
-            ?.deleteActivity(date, activity)
+            ?.deleteActivity(date, activity, user?.token)
             .then(() => setLoading(cur => cur.filter(d => d !== activity.id && d !== date)));
     };
 
     const handleActivityCreate = (date: string, activity: ClientActivity) => {
         setLoading(cur => [...cur, date]);
         database
-            ?.updateActivity(date, activity)
+            ?.updateActivity(date, activity, user?.token)
             .then(() => setLoading(cur => cur.filter(d => d !== date)));
         openActivityModal(date, activity);
     };

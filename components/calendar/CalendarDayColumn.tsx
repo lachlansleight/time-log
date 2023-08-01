@@ -3,6 +3,7 @@ import { ClientDay } from "lib/types/Day";
 import { ClientActivity } from "lib/types/Activity";
 import ActivityType from "lib/types/ActivityType";
 import TextUtils from "lib/TextUtils";
+import useAuth from "lib/auth/useAuth";
 import CalendarActivity from "./CalendarActivity";
 
 const CalendarDayColumn = ({
@@ -24,6 +25,7 @@ const CalendarDayColumn = ({
     handleActivityCreate: (newVal: ClientActivity) => void;
     handleActivityOpen: (activity: ClientActivity) => void;
 }): JSX.Element => {
+    const { user } = useAuth();
     const columnDiv = useRef<HTMLDivElement>(null);
     const dragImg = useRef<HTMLImageElement>(null);
     const [newActivity, setNewActivity] = useState<ClientActivity | null>(null);
@@ -51,6 +53,7 @@ const CalendarDayColumn = ({
 
     const dragStart = useCallback(
         (e: React.DragEvent) => {
+            if (!user) return;
             if (!columnDiv.current) return;
             if (loading.includes(date)) return;
             if (!dragImg.current) return;
@@ -69,11 +72,12 @@ const CalendarDayColumn = ({
                 duration: 0,
             });
         },
-        [columnDiv, loading, getY, getHour, dragImg]
+        [columnDiv, loading, getY, getHour, dragImg, user]
     );
 
     const dragMove = useCallback(
         (e: React.MouseEvent) => {
+            if (!user) return;
             if (!columnDiv.current) return;
             if (!newActivity) return;
             if (!isDragging) return;
@@ -91,10 +95,11 @@ const CalendarDayColumn = ({
                 duration: newDuration,
             }));
         },
-        [columnDiv, dragStartY, getY, getHour, newActivity]
+        [columnDiv, dragStartY, getY, getHour, newActivity, user]
     );
 
     const dragEnd = useCallback(() => {
+        if (!user) return;
         if (!newActivity) return;
         if (newActivity.duration > 0) {
             handleActivityCreate(JSON.parse(JSON.stringify(newActivity)));
@@ -102,19 +107,19 @@ const CalendarDayColumn = ({
         setIsDragging(false);
         setNewActivity(null);
         setLastOffset(0);
-    }, [newActivity, handleActivityCreate]);
+    }, [newActivity, handleActivityCreate, user]);
 
     return (
         <div
             key={date}
             className={`relative h-full border-r border-white border-opacity-10 select-none ${
-                loading.includes(date) ? "cursor-wait" : "cursor-pointer"
+                loading.includes(date) ? "cursor-wait" : user ? "cursor-pointer" : "cursor-default"
             }`}
             ref={columnDiv}
             onDragStart={dragStart}
             onDrag={dragMove}
             onDragEnd={dragEnd}
-            draggable
+            draggable={!!user}
         >
             {data
                 .find(d => d.date === date)

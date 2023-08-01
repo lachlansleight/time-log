@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ClientActivity } from "lib/types/Activity";
+import useAuth from "lib/auth/useAuth";
 
 const CalendarActivity = ({
     activity,
@@ -17,6 +18,7 @@ const CalendarActivity = ({
     loading: boolean;
 }): JSX.Element => {
     const dragSize = 20;
+    const { user } = useAuth();
 
     const [innerActivity, setInnerActivity] = useState(activity);
     useEffect(() => {
@@ -44,7 +46,19 @@ const CalendarActivity = ({
     const [dragStart, setDragStart] = useState(0);
     const [lastOffset, setLastOffset] = useState(0);
     const [dragging, setDragging] = useState<"" | "offset" | "top" | "bottom">("");
-    const [cursor, setCursor] = useState("cursor-grab");
+    const [cursor, setCursor] = useState("cursor-default");
+
+    const setNewCursor = useCallback(
+        (name: string) => {
+            if (user) setCursor(name);
+            else setCursor("cursor-default");
+        },
+        [user]
+    );
+
+    useEffect(() => {
+        if (user) setNewCursor("cursor-grab");
+    }, [user]);
 
     useEffect(() => {
         if (!dayDiv.current) return;
@@ -54,23 +68,25 @@ const CalendarActivity = ({
     return (
         <div
             ref={dayDiv}
-            className={`absolute grid place-items-center rounded-lg border border-neutral-800 ${
+            className={`absolute grid place-items-center rounded-lg border border-neutral-800 px-1 ${
                 loading ? "cursor-wait" : cursor
             } ${innerActivity.type.category.class}`}
-            draggable
+            draggable={!!user}
             style={{
                 top: getY(innerActivity.start),
                 height: getY(innerActivity.duration),
                 width: "calc(100% - 0.5rem)",
                 left: "0.25rem",
             }}
-            onMouseLeave={() => setCursor("cursor-grab")}
+            onMouseLeave={() => setNewCursor("cursor-grab")}
             onMouseMove={e => {
                 const coords = getLocalCoords(e);
-                if (coords.top < dragSize || coords.bottom < dragSize) setCursor("cursor-n-resize");
-                else setCursor("cursor-grab");
+                if (coords.top < dragSize || coords.bottom < dragSize)
+                    setNewCursor("cursor-n-resize");
+                else setNewCursor("cursor-grab");
             }}
             onDragStart={e => {
+                if (!user) return;
                 e.stopPropagation();
                 if (dragImg.current) e.dataTransfer.setDragImage(dragImg.current, 0, 0);
                 if (loading) return;
@@ -82,6 +98,7 @@ const CalendarActivity = ({
                 setDragStart(y);
             }}
             onDrag={e => {
+                if (!user) return;
                 e.stopPropagation();
                 if (!dragging) return;
 
@@ -109,6 +126,7 @@ const CalendarActivity = ({
                 }
             }}
             onDragEnd={e => {
+                if (!user) return;
                 e.stopPropagation();
                 onChange(innerActivity);
                 setDragging("");
@@ -116,6 +134,7 @@ const CalendarActivity = ({
                 setLastOffset(0);
             }}
             onMouseDown={e => {
+                if (!user) return;
                 if (loading) return;
                 if (e.button === 1) onMiddleClick();
             }}

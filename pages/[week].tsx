@@ -32,7 +32,7 @@ const HomePageWithWeek = (): JSX.Element => {
                             setWeek(w);
                             router.push(`/${w.format("YY-MM-DD")}`);
                         }}
-                        height={dimensions.height - 152 - 24}
+                        height={Math.max(1000, dimensions.height - 152 - 26)}
                     />
                 )}
             </div>

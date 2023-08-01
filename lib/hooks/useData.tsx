@@ -3,6 +3,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { ClientSiteData, DbSiteData } from "lib/types/SiteData";
 import Calendar from "lib/Calendar";
+import useAuth from "lib/auth/useAuth";
+import { Database } from "lib/firebaseRtdbCrud";
 
 export type DataContext = {
     loading: boolean;
@@ -30,23 +32,27 @@ const DataContextProvider = ({
     showErrors?: boolean;
     children: ReactNode;
 }) => {
+    const { user, loading: authLoading } = useAuth();
     const [value, setValue] = useState<DataContext>(defaultContextValue);
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<ClientSiteData | null>(null);
     const [calendar] = useState<Calendar>(new Calendar());
 
-    const revalidate = useCallback(async () => {
-        if (loading) return;
-        if (!calendar) return;
+    const revalidate = useCallback(
+        async (token?: string) => {
+            if (loading) return;
+            if (!calendar) return;
 
-        setLoading(true);
-        const rawData: DbSiteData = (
-            await axios(process.env.NEXT_PUBLIC_FIREBASE_DATABASE + "/.json")
-        ).data;
-        calendar.setFromDb(rawData);
+            setLoading(true);
+            const rawData: DbSiteData = token
+                ? await Database.get("/", token)
+                : (await axios("/api/calendar")).data;
+            calendar.setFromDb(rawData);
 
-        setLoading(false);
-    }, [calendar, loading]);
+            setLoading(false);
+        },
+        [calendar, loading]
+    );
 
     useEffect(() => {
         if (!calendar) return;
@@ -56,15 +62,16 @@ const DataContextProvider = ({
 
     useEffect(() => {
         if (!calendar) return;
-        if (showInfo) calendar.onError = toast.error;
+        if (showErrors) calendar.onError = toast.error;
         else calendar.onError = null;
     }, [calendar, showErrors]);
 
     useEffect(() => {
         if (!calendar) return;
+        if (authLoading) return;
         calendar.onDataUpdated = setData;
-        revalidate();
-    }, [calendar]);
+        revalidate(user?.token);
+    }, [calendar, user, authLoading]);
 
     useEffect(() => {
         if (!calendar) return;

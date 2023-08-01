@@ -1,9 +1,9 @@
-import axios from "axios";
 import ActivityType, { ClientActivityType } from "./types/ActivityType";
 import SiteData, { ClientSiteData, DbSiteData } from "./types/SiteData";
 import Category, { ClientCategory } from "./types/Category";
 import Activity, { ClientActivity } from "./types/Activity";
 import Day from "./types/Day";
+import { Database } from "./firebaseRtdbCrud";
 
 class Calendar {
     private data: ClientSiteData;
@@ -12,15 +12,12 @@ class Calendar {
     public onInfo: ((info: string) => void) | null = null;
     public onError: ((error: string) => void) | null = null;
 
-    private dbUrl: string;
-
     constructor() {
         this.data = {
             activityTypes: [],
             categories: [],
             days: [],
         };
-        this.dbUrl = process.env.NEXT_PUBLIC_FIREBASE_DATABASE || "";
     }
 
     public setFromDb(data: DbSiteData): void {
@@ -28,7 +25,12 @@ class Calendar {
         if (this.onDataUpdated) this.onDataUpdated(this.data);
     }
 
-    public async updateCategory(category: ClientCategory): Promise<void> {
+    public async updateCategory(category: ClientCategory, token?: string): Promise<void> {
+        if (!token) {
+            if (this.onError) this.onError("Not logged in!");
+            return;
+        }
+
         const cache = JSON.stringify(this.data);
 
         const index = this.data.categories.findIndex(c => c.id === category.id);
@@ -36,8 +38,9 @@ class Calendar {
             this.data.categories.push(category);
             if (this.onDataUpdated) this.onDataUpdated(this.data);
             try {
-                await axios.put(
-                    `${this.dbUrl}/categories/${category.id}.json`,
+                await Database.put(
+                    token,
+                    `/categories/${category.id}`,
                     Category.clientToDb(category)
                 );
                 if (this.onInfo) this.onInfo("New activity category " + category.name + " created");
@@ -63,8 +66,9 @@ class Calendar {
             this.data.categories[index] = category;
             if (this.onDataUpdated) this.onDataUpdated(this.data);
             try {
-                await axios.put(
-                    `${this.dbUrl}/categories/${category.id}.json`,
+                await Database.put(
+                    token,
+                    `/categories/${category.id}`,
                     Category.clientToDb(category)
                 );
                 if (this.onInfo) this.onInfo("Activity category " + category.name + " updated");
@@ -78,7 +82,12 @@ class Calendar {
         }
     }
 
-    public async updateActivityType(type: ClientActivityType): Promise<void> {
+    public async updateActivityType(type: ClientActivityType, token?: string): Promise<void> {
+        if (!token) {
+            if (this.onError) this.onError("Not logged in!");
+            return;
+        }
+
         const cache = JSON.stringify(this.data);
 
         const index = this.data.activityTypes.findIndex(at => at.id === type.id);
@@ -86,9 +95,10 @@ class Calendar {
             this.data.activityTypes.push(type);
             if (this.onDataUpdated) this.onDataUpdated(this.data);
             try {
-                await this.updateCategory(type.category);
-                await axios.put(
-                    `${this.dbUrl}/activityTypes/${type.id}.json`,
+                await this.updateCategory(type.category, token);
+                await Database.put(
+                    token,
+                    `/activityTypes/${type.id}`,
                     ActivityType.clientToDb(type)
                 );
                 if (this.onInfo) this.onInfo("New activity type " + type.name + " created");
@@ -110,9 +120,10 @@ class Calendar {
             this.data.activityTypes[index] = type;
             if (this.onDataUpdated) this.onDataUpdated(this.data);
             try {
-                await this.updateCategory(type.category);
-                await axios.put(
-                    `${this.dbUrl}/activityTypes/${type.id}.json`,
+                await this.updateCategory(type.category, token);
+                await Database.put(
+                    token,
+                    `/activityTypes/${type.id}`,
                     ActivityType.clientToDb(type)
                 );
                 if (this.onInfo) this.onInfo("Activity type " + type.name + " updated");
@@ -126,7 +137,16 @@ class Calendar {
         }
     }
 
-    public async updateActivity(date: string, activity: ClientActivity): Promise<void> {
+    public async updateActivity(
+        date: string,
+        activity: ClientActivity,
+        token?: string
+    ): Promise<void> {
+        if (!token) {
+            if (this.onError) this.onError("Not logged in!");
+            return;
+        }
+
         const cache = JSON.stringify(this.data);
 
         const dayIndex = this.data.days.findIndex(d => d.date === date);
@@ -137,9 +157,10 @@ class Calendar {
             });
             if (this.onDataUpdated) this.onDataUpdated(this.data);
             try {
-                await this.updateActivityType(activity.type);
-                await axios.put(
-                    `${this.dbUrl}/days/${date}.json`,
+                await this.updateActivityType(activity.type, token);
+                await Database.put(
+                    token,
+                    `/days/${date}`,
                     Day.clientToDb({
                         date,
                         activities: [activity],
@@ -162,9 +183,10 @@ class Calendar {
                 this.data.days[dayIndex].activities.push(activity);
                 if (this.onDataUpdated) this.onDataUpdated(this.data);
                 try {
-                    await this.updateActivityType(activity.type);
-                    await axios.put(
-                        `${this.dbUrl}/days/${date}/a/${activity.id}.json`,
+                    await this.updateActivityType(activity.type, token);
+                    await Database.put(
+                        token,
+                        `/days/${date}/a/${activity.id}`,
                         Activity.clientToDb(activity)
                     );
                     if (this.onInfo) this.onInfo("New activity created");
@@ -185,9 +207,10 @@ class Calendar {
                 this.data.days[dayIndex].activities[activityIndex] = activity;
                 if (this.onDataUpdated) this.onDataUpdated(this.data);
                 try {
-                    await this.updateActivityType(activity.type);
-                    await axios.put(
-                        `${this.dbUrl}/days/${date}/a/${activity.id}.json`,
+                    await this.updateActivityType(activity.type, token);
+                    await Database.put(
+                        token,
+                        `/days/${date}/a/${activity.id}`,
                         Activity.clientToDb(activity)
                     );
                     if (this.onInfo) this.onInfo("Activity updated");
@@ -202,7 +225,16 @@ class Calendar {
         }
     }
 
-    public async deleteActivity(date: string, activity: ClientActivity): Promise<void> {
+    public async deleteActivity(
+        date: string,
+        activity: ClientActivity,
+        token?: string
+    ): Promise<void> {
+        if (!token) {
+            if (this.onError) this.onError("Not logged in!");
+            return;
+        }
+
         const cache = JSON.stringify(this.data);
 
         const day = this.data.days.find(d => d.date === date);
@@ -221,9 +253,9 @@ class Calendar {
         if (this.onDataUpdated) this.onDataUpdated(this.data);
         try {
             if (day.activities.length === 0) {
-                await axios.delete(`${this.dbUrl}/days/${date}.json`);
+                await Database.delete(token, `/days/${date}`);
             } else {
-                await axios.delete(`${this.dbUrl}/days/${date}/a/${activity.id}.json`);
+                await Database.delete(token, `/days/${date}/a/${activity.id}`);
             }
             if (this.onInfo) this.onInfo("Activity deleted");
         } catch (e: any) {

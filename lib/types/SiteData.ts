@@ -1,3 +1,4 @@
+import { DbActivity } from "./Activity";
 import ActivityType, { ClientActivityType, DbActivityType } from "./ActivityType";
 import Category, { DbCategory, ClientCategory } from "./Category";
 import Day, { DbDay, ClientDay } from "./Day";
@@ -32,6 +33,39 @@ class SiteData {
             categories,
             days,
         };
+    }
+
+    /** Removes all human-readable data from the calendar (activity type names, category names, activity notes) */
+    static obscureDbData(data: DbSiteData, showCategoryNames = false): DbSiteData {
+        const newData: DbSiteData = {
+            activityTypes: {},
+            categories: {},
+            days: {},
+        };
+        if (!data) return newData;
+        const clientData = SiteData.dbToClient(data);
+        Object.keys(data.categories).forEach(
+            categoryId =>
+                (newData.categories[categoryId] = { ...data.categories[categoryId], n: "" })
+        );
+        Object.keys(data.activityTypes).forEach(
+            typeId =>
+                (newData.activityTypes[typeId] = {
+                    ...data.activityTypes[typeId],
+                    n: !showCategoryNames
+                        ? ""
+                        : clientData.categories.find(c => c.id === data.activityTypes[typeId].c)
+                              ?.name || "",
+                })
+        );
+        Object.keys(data.days).forEach(date => {
+            const activities: Record<string, DbActivity> = {};
+            Object.keys(data.days[date].a).forEach(
+                activityId => (activities[activityId] = { ...data.days[date].a[activityId], n: "" })
+            );
+            newData.days[date] = { ...data.days[date], a: activities };
+        });
+        return newData;
     }
 
     static dbToClient(db: DbSiteData): ClientSiteData {
