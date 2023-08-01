@@ -43,7 +43,7 @@ const Layout = ({ children }: { children: ReactNode }): JSX.Element => {
             </Head>
             <main className="min-h-screen bg-neutral-900 text-white">
                 <div className="h-8 bg-neutral-800 flex justify-between items-center shadow-md px-8">
-                    <div />
+                    <div className="w-16" />
                     <div className="flex items-center text-xl italic">
                         Time Log{" "}
                         <span className="text-xs relative top-1 left-2 text-white text-opacity-50">
@@ -51,13 +51,13 @@ const Layout = ({ children }: { children: ReactNode }): JSX.Element => {
                         </span>
                     </div>
                     {loading ? (
-                        <div />
+                        <div className="w-16" />
                     ) : user ? (
-                        <div className="cursor-pointer" onClick={doLogout}>
+                        <div className="w-16 text-center cursor-pointer" onClick={doLogout}>
                             Logout
                         </div>
                     ) : (
-                        <div className="cursor-pointer" onClick={openLoginModal}>
+                        <div className="w-16 text-center cursor-pointer" onClick={openLoginModal}>
                             Login
                         </div>
                     )}
