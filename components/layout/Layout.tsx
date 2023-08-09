@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useModal } from "@ebay/nice-modal-react";
 import useAuth from "lib/auth/useAuth";
 import LoginModal from "components/modals/LoginModal";
+import Sidebar from "components/sidebar/Sidebar";
 import packageJson from "../../package.json";
 
 const Layout = ({ children }: { children: ReactNode }): JSX.Element => {
@@ -42,7 +43,7 @@ const Layout = ({ children }: { children: ReactNode }): JSX.Element => {
                 <title>TimeLog</title>
             </Head>
             <main className="min-h-screen bg-neutral-900 text-white">
-                <div className="h-8 bg-neutral-800 flex justify-between items-center shadow-md px-8">
+                <div className="h-8 bg-black flex justify-between items-center shadow-md px-8">
                     <div className="w-16" />
                     <div className="flex items-center text-xl italic">
                         Time Log{" "}
@@ -62,7 +63,12 @@ const Layout = ({ children }: { children: ReactNode }): JSX.Element => {
                         </div>
                     )}
                 </div>
-                {children}
+                <div className="flex">
+                    <Sidebar />
+                    <div className="flex-grow">
+                        {children}
+                    </div>
+                </div>
             </main>
         </>
     );

@@ -140,7 +140,13 @@ const CalendarActivity = ({
             }}
         >
             <div className="flex flex-col items-center">
-                <span className="text-center leading-none">{activity.type.name}</span>
+                <span className="text-center leading-none">
+                    {activity.note &&
+                    activity.type.id === "uncategorized" &&
+                    activity.duration <= 0.5
+                        ? activity.note
+                        : activity.type.name}
+                </span>
                 {activity.note && activity.duration > 0.5 && (
                     <span className="text-xs text-center leading-none mt-1">{activity.note}</span>
                 )}

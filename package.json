@@ -1,7 +1,7 @@
 {
     "name": "time-log",
     "author": "@LachlanSleight",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "scripts": {
         "dev": "next dev -p 3134",
         "build": "next build",

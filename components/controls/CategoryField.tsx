@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaPlus, FaTimes } from "react-icons/fa";
+import { FaPencilAlt, FaPlus, FaTimes } from "react-icons/fa";
 import Category, { ClientCategory } from "lib/types/Category";
 import TextField from "./TextField";
 
@@ -18,7 +18,7 @@ const CategoryField = ({
     categories: ClientCategory[];
     editSource?: ClientCategory;
 }): JSX.Element => {
-    const [isCreatingNew, setIsCreatingNew] = useState(!!editSource);
+    const [isCreatingNew, setIsCreatingNew] = useState(false);
     const [customValue, setCustomValue] = useState<ClientCategory>(
         editSource || {
             ...Category.getDefault(),
@@ -84,29 +84,44 @@ const CategoryField = ({
                     </div>
                 </div>
             ) : (
-                <div className="flex flex-wrap gap-2 pt-4">
-                    {categories.map(c => (
-                        <div
-                            key={c.id}
-                            className={`flex flex-col items-center cursor-pointer px-3 pt-1 ${
-                                c.id === value.id ? "border border-white rounded" : ""
-                            }`}
-                            onClick={() => onChange(c)}
-                        >
+                <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap gap-2 pt-4">
+                        {categories.map(c => (
                             <div
-                                className={`w-8 h-8 rounded-full border border-white ${c.previewClass}`}
-                            />
-                            <span>{c.name}</span>
+                                key={c.id}
+                                className={`flex flex-col items-center cursor-pointer px-3 pt-1 w-20 text-center ${
+                                    c.id === value.id ? "border border-white rounded" : ""
+                                }`}
+                                onClick={() => onChange(c)}
+                            >
+                                <div
+                                    className={`w-8 h-8 rounded-full border border-white ${c.previewClass}`}
+                                />
+                                <span className="text-xs">{c.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        <div
+                            className="flex flex-col items-center cursor-pointer pt-1 w-20 text-center"
+                            onClick={() => setIsCreatingNew(true)}
+                        >
+                            <div className="w-8 h-8 grid place-items-center text-lg rounded-full border border-white">
+                                <FaPlus className="text-xl" />
+                            </div>
+                            <span className="text-xs">Create New</span>
                         </div>
-                    ))}
-                    <div
-                        className="flex flex-col items-center cursor-pointer pt-1"
-                        onClick={() => setIsCreatingNew(true)}
-                    >
-                        <div className="w-8 h-8 grid place-items-center text-lg rounded-full border border-white">
-                            <FaPlus className="text-xl" />
-                        </div>
-                        <span>Create New</span>
+                        {value.id !== "uncategorized" && (
+                            <div
+                                className="flex flex-col items-center cursor-pointer pt-1"
+                                onClick={() => setIsCreatingNew(true)}
+                            >
+                                <div className="w-8 h-8 grid place-items-center text-lg rounded-full border border-white">
+                                    <FaPencilAlt className="text-xl" />
+                                </div>
+                                <span className="text-xs">Edit {value.name}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

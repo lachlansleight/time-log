@@ -9,9 +9,12 @@ import useData from "lib/hooks/useData";
 import { ClientActivity } from "lib/types/Activity";
 import ActivityModal from "components/modals/ActivityModal";
 import useAuth from "lib/auth/useAuth";
+import useSidebar from "lib/hooks/useSidebar";
+import CalendarSidebarSummary from "../sidebar/CalendarSidebarSummary";
 import CalendarHeader from "./CalendarHeader";
 import CalendarRows from "./CalendarRows";
 import CalendarDayColumn from "./CalendarDayColumn";
+import CalendarGridHeader from "./CalendarGridHeader";
 dayjs.extend(isoWeek);
 dayjs.extend(advancedFormat);
 dayjs.extend(customParseFormat);
@@ -27,6 +30,7 @@ const CalendarGrid = ({
     height?: number;
 }): JSX.Element => {
     const { data, database } = useData();
+    const {page} = useSidebar();
     const { user } = useAuth();
     // const [calendarData, setCalendarData] = useState<ClientSiteData | null>(null);
     // const [calendar] = useState<Calendar>(new Calendar());
@@ -113,31 +117,43 @@ const CalendarGrid = ({
                 e.dataTransfer.dropEffect = "move";
             }}
         >
-            <CalendarHeader week={week} days={days} offsetWeek={offsetWeek} />
-            <div className="flex w-full relative" style={{ height }}>
-                <CalendarRows showLines={true} />
-                <div
-                    className={`relative grid grid-cols-7 flex-grow border-l border-white border-opacity-10`}
-                    style={{
-                        top: "0.75rem",
-                        height: `calc(100% - 2.5rem)`,
-                    }}
-                >
-                    {days.map(date => (
-                        <CalendarDayColumn
-                            key={date}
-                            date={date}
-                            data={data?.days || []}
-                            getY={getY}
-                            getHour={getHour}
-                            loading={loading}
-                            handleActivityChange={a => handleActivityChange(date, a)}
-                            handleActivityCreate={v => handleActivityCreate(date, v)}
-                            handleActivityOpen={a => openActivityModal(date, a)}
-                        />
-                    ))}
+            <div className="flex w-full relative">
+                {data && (
+                    <CalendarSidebarSummary
+                        days={days}
+                        data={JSON.parse(JSON.stringify(data))}
+                        isOpen={page === "week-summary"}
+                    />
+                )}
+                <div className="flex flex-col flex-grow mr-2">
+                    <CalendarHeader week={week} offsetWeek={offsetWeek} />
+                    <CalendarGridHeader days={days} />
+                    <div className="flex w-full relative" style={{ height }}>
+                        <CalendarRows showLines={true} />
+                        <div
+                            className={`relative grid grid-cols-7 flex-grow border-l border-white border-opacity-10`}
+                            style={{
+                                top: "0.75rem",
+                                height: `calc(100% - 2.5rem)`,
+                            }}
+                        >
+                            {days.map(date => (
+                                <CalendarDayColumn
+                                    key={date}
+                                    date={date}
+                                    data={data?.days || []}
+                                    getY={getY}
+                                    getHour={getHour}
+                                    loading={loading}
+                                    handleActivityChange={a => handleActivityChange(date, a)}
+                                    handleActivityCreate={v => handleActivityCreate(date, v)}
+                                    handleActivityOpen={a => openActivityModal(date, a)}
+                                />
+                            ))}
+                        </div>
+                        <CalendarRows />
+                    </div>
                 </div>
-                <CalendarRows />
             </div>
         </div>
     );
